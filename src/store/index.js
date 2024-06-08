@@ -1,12 +1,11 @@
-import { createStore } from "vuex";
+import { createStore } from 'vuex';
 
 const store = createStore({
   state: {
     user: null,
     token: null,
     skill: null,
-    username: null,
-    posts: [], // 게시글 데이터
+    posts: [], // 커뮤니티 글 데이터 추가
   },
   mutations: {
     setUser(state, user) {
@@ -18,9 +17,6 @@ const store = createStore({
     setSkill(state, skill) {
       state.skill = skill;
     },
-    setUsername(state, username) {
-      state.username = username;
-    },
     setPosts(state, posts) {
       state.posts = posts;
     },
@@ -28,61 +24,57 @@ const store = createStore({
       state.posts.push(post);
     },
     updatePost(state, updatedPost) {
-      const index = state.posts.findIndex((post) => post.id === updatedPost.id);
+      const index = state.posts.findIndex(post => post.id === updatedPost.id);
       if (index !== -1) {
         state.posts.splice(index, 1, updatedPost);
       }
     },
     deletePost(state, postId) {
-      state.posts = state.posts.filter((post) => post.id !== postId);
+      state.posts = state.posts.filter(post => post.id !== postId);
     },
     clearAuth(state) {
       state.user = null;
       state.token = null;
       state.skill = null;
-      state.username = null;
-      state.posts = [];
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userEmail");
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
     },
   },
   actions: {
-    login({ commit }, { user, token, skill, username }) {
-      commit("setUser", user);
-      commit("setToken", token);
-      commit("setSkill", skill);
-      commit("setUsername", username);
+    login({ commit }, { user, token, skill }) {
+      commit('setUser', user);
+      commit('setToken', token);
+      commit('setSkill', skill);
     },
     logout({ commit }) {
-      commit("clearAuth");
+      commit('clearAuth');
     },
-    fetchPosts({ commit }) {
+    async fetchPosts({ commit }) {
       // 실제 API 호출로 대체 필요
       const posts = [
-        { id: 1, title: "First Post", author: "User1" },
-        { id: 2, title: "Second Post", author: "User2" },
+        { id: 1, title: 'First Post' },
+        { id: 2, title: 'Second Post' },
       ];
-      commit("setPosts", posts);
+      commit('setPosts', posts);
     },
-    addPost({ commit }, post) {
+    async addPost({ commit }, post) {
       // 실제 API 호출로 대체 필요
-      commit("addPost", post);
+      commit('addPost', post);
     },
-    updatePost({ commit }, updatedPost) {
+    async updatePost({ commit }, updatedPost) {
       // 실제 API 호출로 대체 필요
-      commit("updatePost", updatedPost);
+      commit('updatePost', updatedPost);
     },
-    deletePost({ commit }, postId) {
+    async deletePost({ commit }, postId) {
       // 실제 API 호출로 대체 필요
-      commit("deletePost", postId);
+      commit('deletePost', postId);
     },
   },
   getters: {
-    isAuthenticated: (state) => !!state.user,
-    getUser: (state) => state.user,
-    getSkill: (state) => state.skill,
-    getUsername: (state) => state.username,
-    getPosts: (state) => state.posts,
+    isAuthenticated: state => !!state.user,
+    getUser: state => state.user,
+    getSkill: state => state.skill,
+    getPosts: state => state.posts,
   },
 });
 

@@ -3,7 +3,7 @@
     <div class="box">
       <div class="title">LOGIN</div>
 
-      <!-- 로그인 -->
+      <!-- Login Inputs -->
       <div class="input">
         <input
           type="email"
@@ -27,15 +27,15 @@
         <span class="spin"></span>
       </div>
 
-      <!-- 작용 버튼들 -->
-      <div class="button login">
+      <!-- Action Buttons -->
+      <div class="button">
         <button @click="handleLogin">LOGIN</button>
       </div>
-      <div class="button register">
+      <div class="button">
         <button @click="$router.push({ name: 'Register' })">Register</button>
       </div>
 
-      <!-- 로그인 에러 -->
+      <!-- Error Message Display -->
       <div class="error" v-if="errorMessage">{{ errorMessage }}</div>
 
       <a href="#" class="pass-forgot">Forgot your password?</a>
@@ -69,33 +69,27 @@ export default {
             password: this.password,
           }
         );
-        console.log("서버 응답:", response.data); // 서버 응답 전체 확인
         if (response.data.access_token) {
           localStorage.setItem("authToken", response.data.access_token);
           localStorage.setItem("userEmail", this.email);
-          // 이메일에서 닉네임 추출
-          const username = this.email.split('@')[0];
-          console.log("닉네임:", username); // 콘솔 로그 추가
           this.login({
             user: this.email,
             token: response.data.access_token,
             skill: response.data.skill,
-            username: username, // 추출한 닉네임 사용
           });
           this.$router.push("/");
         } else {
           this.errorMessage =
-            "로그인은 성공했으나 액세스 토큰이 반환되지 않았습니다.";
+            "Login succeeded but no access token was returned.";
         }
       } catch (error) {
         this.errorMessage =
-          "로그인 실패: " + (error.response?.data?.detail || "알 수 없는 오류");
+          "Login failed: " + (error.response?.data?.detail || "Unknown error");
       }
     },
   },
 };
 </script>
-
 
 <style scoped>
 .box {
@@ -122,60 +116,59 @@ export default {
   letter-spacing: 2px;
   color: #003a9a;
   position: relative;
+
+  &:before {
+    content: "";
+    width: 5px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: -50px;
+    background: #003a9a;
+  }
 }
 
 .input {
   margin-top: 30px;
   position: relative;
   width: 100%;
-}
 
-.input input {
-  position: relative;
-  height: 60px;
-  top: 10px;
-  border: none;
-  background: transparent;
-  font-family: "Roboto", sans-serif;
-  font-size: 24px;
-  color: rgba(0, 0, 0, 0.8);
-  font-weight: 300;
-}
+  input {
+    position: relative;
+    height: 60px;
+    top: 10px;
+    border: none;
+    background: transparent;
+    font-family: "Roboto", sans-serif;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.8);
+    font-weight: 300;
+  }
 
-.input span.spin {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: #003a9a;
-  z-index: 4;
-  width: 0;
+  span.spin {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #003a9a;
+    z-index: 4;
+    width: 0;
+  }
 }
 
 .button {
   margin-top: 30px;
-}
 
-.button button {
-  width: 100%;
-  line-height: 64px;
-  background-color: transparent;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  font-weight: 900;
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s, color 0.3s, transform 0.1s;
-  cursor: pointer;
-}
-
-.button button:hover {
-  background-color: #003a9a;
-  color: #fff;
-}
-
-.button button:active {
-  transform: scale(0.95);
+  button {
+    width: 100%;
+    line-height: 64px;
+    background-color: transparent;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    font-weight: 900;
+    font-size: 18px;
+    color: rgba(0, 0, 0, 0.2);
+  }
 }
 
 .material-button,
@@ -208,19 +201,5 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.error {
-  color: red;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.pass-forgot {
-  margin-top: 20px;
-  display: block;
-  text-align: center;
-  color: #003a9a;
-  text-decoration: none;
 }
 </style>

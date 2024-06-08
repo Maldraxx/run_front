@@ -3,76 +3,41 @@
     <div class="box">
       <div class="title">REGISTER</div>
 
-      <!-- 회원가입할 때 정보 기입 -->
+      <!-- Register Inputs -->
       <div class="input">
-        <input
-          type="text"
-          name="regname"
-          id="regname"
-          v-model="regUsername"
-          placeholder="Username"
-          @input="clearErrors"
-        />
+        <input type="text" name="regname" id="regname" v-model="regUsername" placeholder="Username" @input="clearErrors" />
         <span class="spin"></span>
       </div>
       <div class="input">
-        <input
-          type="password"
-          name="regpass"
-          id="regpass"
-          v-model="regPassword"
-          placeholder="Password"
-          @input="clearErrors"
-        />
+        <input type="password" name="regpass" id="regpass" v-model="regPassword" placeholder="Password" @input="clearErrors" />
         <span class="spin"></span>
       </div>
       <div class="input">
-        <input
-          type="password"
-          name="reregpass"
-          id="reregpass"
-          v-model="regRepeatPassword"
-          placeholder="Repeat Password"
-          @input="clearErrors"
-        />
+        <input type="password" name="reregpass" id="reregpass" v-model="regRepeatPassword" placeholder="Repeat Password" @input="clearErrors" />
         <span class="spin"></span>
       </div>
       <div class="input">
-        <input
-          type="email"
-          name="regemail"
-          id="regemail"
-          v-model="regEmail"
-          placeholder="Email"
-          @input="clearErrors"
-        />
+        <input type="email" name="regemail" id="regemail" v-model="regEmail" placeholder="Email" @input="clearErrors" />
         <span class="spin"></span>
       </div>
       <div class="input">
-        <input
-          type="number"
-          name="regskill"
-          id="regskill"
-          v-model="regSkill"
-          min="1"
-          max="10"
-          placeholder="Skill Level (1-10)"
-          @input="clearErrors"
-        />
+        <input type="number" name="regskill" id="regskill" v-model="regSkill" min="1" max="10" placeholder="Skill Level (1-10)" @input="clearErrors" />
         <span class="spin"></span>
       </div>
 
+      <!-- Action Button -->
       <div class="button">
         <button @click="register">REGISTER</button>
       </div>
 
+      <!-- Error Message Display -->
       <div class="error" v-if="errorMessage">{{ errorMessage }}</div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
 
 export default {
   data() {
@@ -90,36 +55,34 @@ export default {
       this.errorMessage = "";
     },
     async register() {
-      if (this.regPassword !== this.regRepeatPassword) {
-        this.errorMessage = "비밀번호가 일치하지 않습니다.";
-        return;
-      }
-      if (this.regSkill < 1 || this.regSkill > 10) {
-        this.errorMessage = "Skill 레벨은 1에서 10 사이의 숫자여야 합니다.";
-        return;
-      }
-      try {
-        const response = await axios.post(
-          "https://destiny-back-63f6h32ypq-de.a.run.app/blue/account/create_account",
-          {
-            email: this.regEmail,
-            password: this.regPassword,
-            skill: this.regSkill
-          }
-        );
-        console.log("회원가입 성공:", response.data);
-        this.$router.push("/"); // 홈페이지로 리디렉션
-      } catch (error) {
-        this.errorMessage =
-          "회원가입 실패: " + (error.response?.data?.detail || "알 수 없는 오류");
-      }
-    }
+  if (this.regPassword !== this.regRepeatPassword) {
+    this.errorMessage = "비밀번호가 일치하지 않습니다.";
+    return;
   }
-};
+  if (this.regSkill < 1 || this.regSkill > 10) {
+    this.errorMessage = "Skill 레벨은 1에서 10 사이의 숫자여야 합니다.";
+    return;
+  }
+  try {
+    const response = await axios.post('https://destiny-back-63f6h32ypq-de.a.run.app/blue/account/create_account', {
+      email: this.regEmail,
+      password: this.regPassword,
+      skill: this.regSkill
+    });
+    console.log('회원가입 성공:', response.data);
+    this.$router.push('/'); // 홈페이지로 리디렉션
+  } catch (error) {
+    this.errorMessage = "회원가입 실패: " + (error.response?.data.detail || "알 수 없는 오류");
+  }
+}
+
+  }
+}
 </script>
 
-
-<style scoped>
+  
+  
+  <style scoped>
 .box {
   position: relative;
   top: 0;
@@ -144,60 +107,59 @@ export default {
   letter-spacing: 2px;
   color: #003a9a;
   position: relative;
+
+  &:before {
+    content: "";
+    width: 5px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: -50px;
+    background: #003a9a;
+  }
 }
 
 .input {
   margin-top: 30px;
   position: relative;
   width: 100%;
-}
 
-.input input {
-  position: relative;
-  height: 60px;
-  top: 10px;
-  border: none;
-  background: transparent;
-  font-family: "Roboto", sans-serif;
-  font-size: 24px;
-  color: rgba(0, 0, 0, 0.8);
-  font-weight: 300;
-}
+  input {
+    position: relative;
+    height: 60px;
+    top: 10px;
+    border: none;
+    background: transparent;
+    font-family: "Roboto", sans-serif;
+    font-size: 24px;
+    color: rgba(0, 0, 0, 0.8);
+    font-weight: 300;
+  }
 
-.input span.spin {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: #003a9a;
-  z-index: 4;
-  width: 0;
+  span.spin {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #003a9a;
+    z-index: 4;
+    width: 0;
+  }
 }
 
 .button {
   margin-top: 30px;
-}
 
-.button button {
-  width: 100%;
-  line-height: 64px;
-  background-color: transparent;
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  font-weight: 900;
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s, color 0.3s, transform 0.1s;
-  cursor: pointer;
-}
-
-.button button:hover {
-  background-color: #003a9a;
-  color: #fff;
-}
-
-.button button:active {
-  transform: scale(0.95);
+  button {
+    width: 100%;
+    line-height: 64px;
+    background-color: transparent;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    font-weight: 900;
+    font-size: 18px;
+    color: rgba(0, 0, 0, 0.2);
+  }
 }
 
 .material-button,
@@ -206,7 +168,7 @@ export default {
   height: 140px;
   border-radius: 50%;
   background: #003a9a;
-  position: absolute;
+  position:absolute;
   top: 40px;
   right: -70px;
   cursor: pointer;
@@ -227,7 +189,7 @@ export default {
   width: 100%;
   max-width: 460px;
   position: absolute;
-  top: calc(50% + 85px);
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
