@@ -1,43 +1,20 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-  <button @click="handleClick">Click me</button>
+  <div id="app">
+    <exampleNavbar />
+    <router-view />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue';
+import exampleNavbar from './components/exampleNavbar.vue';
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
-  },
-  methods: {
-    handleClick() {
-      alert('Button clicked!');
-    }
+    exampleNavbar,
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+/* App.vue의 스타일을 추가할 수 있습니다. */
 </style>
-
-/*
-f1 누르고 open user setting 검색 후 아래 코드 추가
-그래야 1번 줄에 발생하는 애러 출력 안됨
-
-"eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
-*/
