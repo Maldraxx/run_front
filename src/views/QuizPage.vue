@@ -295,13 +295,35 @@ export default {
         const token = localStorage.getItem("authToken"); // 로컬 스토리지에서 토큰을 가져옴
         try {
           console.log("API 요청 시작");
+          ///*
+          const response_togetid = await axios.get(
+          "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/get_my_question",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
+            },
+          }
+        );
+        this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
+          const lastProblem = this.previousProblems[this.previousProblems.length - 1];
+          const questionId=lastProblem? lastProblem.id:null;
+          //*/
           const response = await axios.post(
             "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/check_answer",
+            ///*
             {
               user_code : "print(\"a\")",
               question_id : 4,
               language_id : "71"
             },
+            //*/
+            /*
+            {
+              user_code: this.code,
+              question_id: questionId,
+              language_id: this.editorLanguage,
+            },
+            */
             {
               headers: {
                 Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
