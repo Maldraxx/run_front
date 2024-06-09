@@ -59,8 +59,8 @@
           </p>
           <textarea
             v-model="userCode"
-            rows="10"
-            cols="50"
+            rows="100"
+            cols="300"
             placeholder="코드 작성"
           ></textarea>
           <button @click="submitCode">채점하기</button>
@@ -163,7 +163,11 @@ export default {
             },
           }
         );
-        this.userProblems = response.data;
+        //this.userProblems = response.data;
+        this.userProblems = response.data.map(problem => ({
+          ...problem,
+          question_id: problem.question_id,
+        }));
         this.showMessage("이전 문제를 성공적으로 불러왔습니다.");
       } catch (error) {
         console.error("에러 발생:", error);
@@ -177,22 +181,24 @@ export default {
     },
     async submitCode() {
       const token = localStorage.getItem("authToken");
-      /*
-      const data = {
-        user_code: this.userCode,
-        question_id: this.selectedProblem.question_id,
-        language_id: this.editorLanguage,
-      };
-      */
       try {
         console.log("API 요청 시작");
         const response = await axios.post(
           "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/check_answer",
+          /*
           {
             "user_code" : "print(\"a\")",
             "question_id" : 4,
             "language_id" : "71",
           },
+          */
+          ///*
+          {
+            user_code: this.userCode,
+            question_id: this.selectedProblem.question_id,
+            language_id: this.editorLanguage,
+          },
+          //*/
           {
             headers: {
               Authorization: `Bearer ${token}`,
