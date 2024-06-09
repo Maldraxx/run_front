@@ -306,7 +306,7 @@ export default {
             },
           }
         );
-        this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
+          this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
           const lastProblem = this.previousProblems[this.previousProblems.length - 1];
           const questionId=lastProblem? lastProblem.id:null;
           */

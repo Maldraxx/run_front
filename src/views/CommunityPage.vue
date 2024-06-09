@@ -10,149 +10,183 @@
           v-model="searchQuery"
           placeholder="검색어 입력"
           size="sm"
+          @keyup.enter="searchPosts"
         />
         <button class="btn-search" @click="searchPosts">검색</button>
         <button class="btn-write" @click="goToWritePage">게시글 작성</button>
       </div>
     </div>
 
-    <div class="community-posts">
-      <div v-if="selectedPostId === null">
-        <div v-for="(post, index) in filteredPosts" :key="post.id" class="post">
-          <router-link :to="{ name: 'SelectedPostPage', params: { postId: post.id } }" class="post-title">
-            {{ index + 1 }}. {{ post.title }}
-          </router-link>
-          <div class="post-meta">
-            <span class="post-author">{{ post.Username }}</span>
-            <span class="post-date">{{ formatDate(post.date) }}</span>
+    <table class="w3-table-all">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>등록일시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(post, index) in paginatedPosts" :key="post.id">
+          <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+          <td>
+            <router-link :to="{ name: 'SelectedPostPage', params: { postId: post.id } }" class="post-title-link">
+              {{ post.title }}
+            </router-link>
+          </td>
+          <td>{{ post.Username }}</td>
+          <td>{{ formatDate(post.date) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <section class="py-7">
+      <div class="container">
+        <div class="row justify-space-between py-2">
+          <div class="col-lg-4 mx-auto">
+            <MaterialPagination>
+              <MaterialPaginationItem prev @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+                <i class="fas fa-angle-double-left"></i>
+              </MaterialPaginationItem>
+              <MaterialPaginationItem
+                v-for="page in totalPages"
+                :key="page"
+                :label="page"
+                :active="page === currentPage"
+                @click="changePage(page)"
+              />
+              <MaterialPaginationItem next @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+                <i class="fas fa-angle-double-right"></i>
+              </MaterialPaginationItem>
+            </MaterialPagination>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
-  <section class="py-7">
-    <div class="container">
-      <div class="row justify-space-between py-2">
-        <div class="col-lg-4 mx-auto">
-          <MaterialPagination>
-            <MaterialPaginationItem prev class="ms-auto">
-              <i class="fas fa-angle-double-left"></i>
-            </MaterialPaginationItem>
-            <MaterialPaginationItem label="1" active />
-            <MaterialPaginationItem label="2" />
-            <MaterialPaginationItem label="3" />
-            <MaterialPaginationItem label="4" />
-            <MaterialPaginationItem label="5" />
-            <MaterialPaginationItem next>
-              <i class="fas fa-angle-double-right"></i>
-            </MaterialPaginationItem>
-          </MaterialPagination>
-        </div>
-      </div>
-    </div>
-  </section>
 </template>
 
 <script>
-import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStore } from 'vuex';
-import MaterialPagination from '../components/MaterialPagination.vue';
-import MaterialPaginationItem from '../components/MaterialPaginationItem.vue';
-import MaterialInput from '../components/MaterialInput.vue';
+  import { computed, ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
+  import MaterialPagination from '../components/MaterialPagination.vue';
+  import MaterialPaginationItem from '../components/MaterialPaginationItem.vue';
+  import MaterialInput from '../components/MaterialInput.vue';
 
-export default {
-  setup() {
-    const store = useStore();
-    const searchQuery = ref('');
-    const router = useRouter();
-    const selectedPostId = ref(null);
+  export default {
+    setup() {
+      const store = useStore();
+      const searchQuery = ref('');
+      const router = useRouter();
+      const selectedPostId = ref(null);
+      const currentPage = ref(1);
+      const itemsPerPage = 20;
 
-    const filteredPosts = computed(() => {
-      const posts = store.getters.getPosts;
-      if (searchQuery.value.trim() === '') {
-        return posts;
-      } else {
-        return posts.filter(post =>
-          post.title.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
-        );
-      }
-    });
+      const filteredPosts = computed(() => {
+        const posts = store.getters.getPosts || [];
+        if (searchQuery.value.trim() === '') {
+          return posts;
+        } else {
+          return posts.filter(post =>
+            post.title.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
+          );
+        }
+      });
 
-    const searchPosts = () => {
-      const matchingPost = filteredPosts.value[0];
-      if (matchingPost) {
-        selectedPostId.value = matchingPost.id;
-      } else {
-        alert('검색어에 해당하는 게시글이 없습니다.');
-      }
-    };
+      const paginatedPosts = computed(() => {
+        if (!filteredPosts.value) return [];
+        const start = (currentPage.value - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return filteredPosts.value.slice(start, end);
+      });
 
-    const goToWritePage = () => {
-      if (store.getters.isAuthenticated) {
-        router.push('/userwritepage');
-      } else {
-        alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-        store.dispatch('goToLoginPage');
-      }
-    };
+      const totalPages = computed(() => {
+        return Math.ceil(filteredPosts.value.length / itemsPerPage);
+      });
 
-    const addNewPost = post => {
-      const user = store.getters.getUser;
-      post.Username = user ? user.username : '익명';
-      store.dispatch('addPost', post);
-    };
+      const searchPosts = () => {
+        store.commit('setSearchQuery', searchQuery.value);
+        store.dispatch('searchPosts');
+      };
 
-    const toggleDetail = postId => {
-      if (selectedPostId.value === postId) {
+      const changePage = (page) => {
+        if (page >= 1 && page <= totalPages.value) {
+          currentPage.value = page;
+        }
+      };
+
+      const goToWritePage = () => {
+        if (store.getters.isAuthenticated) {
+          router.push('/userwritepage');
+        } else {
+          alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+          store.dispatch('goToLoginPage');
+        }
+      };
+
+      const addNewPost = post => {
+        const user = store.getters.getUser;
+        post.Username = user ? user.username : '익명';
+        store.dispatch('addPost', post);
+      };
+
+      const toggleDetail = postId => {
+        if (selectedPostId.value === postId) {
+          selectedPostId.value = null;
+        } else {
+          selectedPostId.value = postId;
+        }
+      };
+
+      const clearSelectedPost = () => {
         selectedPostId.value = null;
-      } else {
-        selectedPostId.value = postId;
-      }
-    };
+      };
 
-    const clearSelectedPost = () => {
-      selectedPostId.value = null;
-    };
+      const formatDate = dateString => {
+        const date = new Date(dateString);
+        return `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}-${date
+          .getDate()
+          .toString()
+          .padStart(2, '0')} ${date
+          .getHours()
+          .toString()
+          .padStart(2, '0')}:${date
+          .getMinutes()
+          .toString()
+          .padStart(2, '0')}`;
+      };
 
-    const formatDate = dateString => {
-      const date = new Date(dateString);
-      return `${date.getFullYear()}-${(date.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}-${date
-        .getDate()
-        .toString()
-        .padStart(2, '0')} ${date
-        .getHours()
-        .toString()
-        .padStart(2, '0')}:${date
-        .getMinutes()
-        .toString()
-        .padStart(2, '0')}`;
-    };
-
-    return {
-      filteredPosts,
-      searchQuery,
-      searchPosts,
-      goToWritePage,
-      addNewPost,
-      toggleDetail,
-      selectedPostId,
-      formatDate,
-      clearSelectedPost,
-      selectedPost: computed(() =>
-        store.getters.getPosts.find(post => post.id === selectedPostId.value)
-      ),
-    };
-  },
-  components: {
-    MaterialPagination,
-    MaterialPaginationItem,
-    MaterialInput,
-  },
-};
+      return {
+        filteredPosts,
+        paginatedPosts,
+        searchQuery,
+        searchPosts,
+        goToWritePage,
+        addNewPost,
+        toggleDetail,
+        selectedPostId,
+        formatDate,
+        clearSelectedPost,
+        selectedPost: computed(() =>
+          store.getters.getPosts.find(post => post.id === selectedPostId.value)
+        ),
+        currentPage,
+        totalPages,
+        changePage
+      };
+    },
+    components: {
+      MaterialPagination,
+      MaterialPaginationItem,
+      MaterialInput,
+    },
+  };
 </script>
+
+
 
 
 <style scoped>
@@ -207,10 +241,6 @@ export default {
   padding: 6px 10px; /* 크기 조정 */
   border: 1px solid #ccc;
   border-radius: 4px;
-}
-
-.community-posts {
-  display: block;
 }
 
 .post {
