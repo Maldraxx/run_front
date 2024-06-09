@@ -295,7 +295,9 @@ export default {
         const token = localStorage.getItem("authToken"); // 로컬 스토리지에서 토큰을 가져옴
         try {
           console.log("API 요청 시작");
-          ///*
+
+
+          /* 이전 문제들 중 가장 최근 문제의 ID를 가져오기
           const response_togetid = await axios.get(
           "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/get_my_question",
           {
@@ -304,26 +306,34 @@ export default {
             },
           }
         );
-        this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
+          this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
           const lastProblem = this.previousProblems[this.previousProblems.length - 1];
           const questionId=lastProblem? lastProblem.id:null;
-          //*/
+          */
+
+
           const response = await axios.post(
             "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/check_answer",
-            ///*
+
+
+            ///* 테스트용 무조건 맞게하는 코드
             {
               user_code : "print(\"a\")",
               question_id : 4,
               language_id : "71"
             },
             //*/
-            /*
+
+
+            /* 진짜 문제 정답 및 오답처리 코드
             {
               user_code: this.code,
               question_id: questionId,
               language_id: this.editorLanguage,
             },
             */
+
+
             {
               headers: {
                 Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
@@ -331,6 +341,7 @@ export default {
             }
           );
           console.log("API 응답 받음:", JSON.stringify(response.data, null, 2));
+          
         // 응답 데이터에 따라 처리
         this.result = response.data; // 결과를 result 변수에 저장
         if (this.result === "Success : True") {
