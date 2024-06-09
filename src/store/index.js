@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import router from '../router';
+import axios from 'axios';
 
 const store = createStore({
   state: {
@@ -11,7 +12,7 @@ const store = createStore({
     showAlert: false,
     alertMessage: '',
     isLoggedIn: !!localStorage.getItem('token'),
-    comments: [], // comments 초기화
+    comments: [],
     searchQuery: '',
     filteredPosts: []
   },
@@ -40,6 +41,13 @@ const store = createStore({
     setLogin(state, status) {
       state.isLoggedIn = status;
     },
+    setEmail(state, email) { 
+      // state.user가 객체인지 확인하고, 그렇지 않은 경우 초기화
+      if (typeof state.user !== 'object') {
+        state.user = {};
+      }
+      state.user.email = email;
+    },
     setComments(state, comments) {
       state.comments = comments;
     },
@@ -58,9 +66,8 @@ const store = createStore({
         state.comments.splice(index, 1, updatedComment);
       }
     },
-    
     addPost(state, post) {
-      post.id = Date.now().toString(); // 새로운 ID 생성
+      post.id = Date.now().toString();
       state.posts.push(post);
       router.push({ name: 'SelectedPostPage', params: { postId: post.id } });
     },
@@ -71,41 +78,69 @@ const store = createStore({
       }));
       localStorage.setItem('posts', JSON.stringify(state.posts));
     },
-    // 검색 기능
-    setSearchQuery(state, query){
+    setSearchQuery(state, query) {
       state.searchQuery = query;
     },
-    setFilteredPosts(state, posts){
+    setFilteredPosts(state, posts) {
       state.filteredPosts = posts;
     },
   },
   actions: {
-    login({ commit }, { user, token, skill, username }) {
+    login({ commit, dispatch }, { user, token, skill, username }) {
       commit("setUser", user);
       commit("setToken", token);
       commit("setSkill", skill);
       commit("setUsername", username);
       commit('setLogin', true);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+      localStorage.setItem('skill', skill);
+
+      // 이메일 가져오기
+      dispatch('fetchEmail');
+    },
+    async fetchEmail({ commit, state }) {
+      try {
+        const response = await axios.get('https://destiny-back-63f6h32ypq-de.a.run.app/blue/account/get_user', {
+          headers: {
+            Authorization: `Bearer ${state.token}`
+          }
+        });
+        const email = response.data.email;
+        commit('setEmail', email);
+      } catch (error) {
+        console.error('이메일을 불러오는 중 에러 발생:', error);
+      }
+    },
+    async fetchSkill({ commit, state }) {
+      try {
+        const response = await axios.post('https://destiny-back-63f6h32ypq-de.a.run.app/blue/account/set_user_skill', null, {
+          headers: {
+            Authorization: `Bearer ${state.token}`
+          }
+        });
+        const skill = response.data.skill;
+        commit('setSkill', skill);
+      } catch (error) {
+        console.error('스킬 레벨을 불러오는 중 에러 발생:', error);
+      }
     },
     logout({ commit }) {
       commit('clearAuth');
+      router.push({ name: 'Login' });
     },
     goToLoginPage() {
-      router.push('/login'); // 로그인 페이지로 이동합니다.
+      router.push('/login');
     },
     async fetchPosts({ commit }) {
       const posts = loadPostsFromLocalStorage();
       commit('setPosts', posts);
     },
     async fetchComments({ commit }, postId) {
-      // postId에 해당하는 글의 댓글을 서버에서 가져옴
       try {
-        // 서버에서 댓글을 가져오는 비동기 작업을 수행합니다.
         const comments = [
-          // 댓글 데이터 형식에 맞게 수정이 필요합니다.
           { id: 1, postId: postId, content: '댓글 내용 1' },
           { id: 2, postId: postId, content: '댓글 내용 2' },
-          // ...
         ];
         commit('setComments', comments);
       } catch (error) {
@@ -122,25 +157,21 @@ const store = createStore({
       }
     },
     async updateComment({ commit }, updatedComment) {
-      try { 
+      try {
         commit('updateComment', updatedComment);
       } catch (error) {
         console.error('댓글을 수정하는 중 에러 발생:', error);
       }
     },
-    
     async deleteComment({ commit }, commentId) {
-      // commentId에 해당하는 댓글을 서버에서 삭제
       try {
-        
         commit('deleteComment', commentId);
       } catch (error) {
         console.error('댓글을 삭제하는 중 에러 발생:', error);
       }
     },
-       
     addPost({ commit, state }, newPost) {
-      newPost.id = Date.now().toString(); // 새로운 ID 생성
+      newPost.id = Date.now().toString();
       const updatedPosts = [...state.posts, newPost];
       commit('setPosts', updatedPosts);
       router.push({ name: 'SelectedPostPage', params: { postId: newPost.id } });
@@ -159,7 +190,7 @@ const store = createStore({
   },
   getters: {
     isAuthenticated: state => !!state.user,
-    getUser: state => state.user,
+    getUser: state => state.user ? state.user.email : '',
     getSkill: state => state.skill,
     getPosts: state => state.posts,
     getAlertStatus: state => ({ status: state.showAlert, message: state.alertMessage }),

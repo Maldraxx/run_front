@@ -7,13 +7,20 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'MyPage',
   computed: {
     ...mapGetters(['getUser', 'getSkill']),
   },
+  methods: {
+    ...mapActions(['fetchEmail', 'fetchSkill']),
+  },
+  created() {
+    this.fetchEmail(); // 컴포넌트가 생성될 때 이메일을 가져옴
+    this.fetchSkill(); // 컴포넌트가 생성될 때 스킬 레벨을 가져옴
+  }
 };
 </script>
 

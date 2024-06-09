@@ -28,13 +28,13 @@
       </thead>
       <tbody>
         <tr v-for="(post, index) in paginatedPosts" :key="post.id">
-          <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+          <td>{{ index + 1 }}</td> <!-- 게시글 번호가 1부터 시작하도록 설정 -->
           <td>
             <router-link :to="{ name: 'SelectedPostPage', params: { postId: post.id } }" class="post-title-link">
               {{ post.title }}
             </router-link>
           </td>
-          <td>{{ post.Username }}</td>
+          <td>{{ post.username }}</td> <!-- username 부분에 이메일이 표시됨 -->
           <td>{{ formatDate(post.date) }}</td>
         </tr>
       </tbody>
@@ -67,128 +67,124 @@
 </template>
 
 <script>
-  import { computed, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useStore } from 'vuex';
-  import MaterialPagination from '../components/MaterialPagination.vue';
-  import MaterialPaginationItem from '../components/MaterialPaginationItem.vue';
-  import MaterialInput from '../components/MaterialInput.vue';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import MaterialPagination from '../components/MaterialPagination.vue';
+import MaterialPaginationItem from '../components/MaterialPaginationItem.vue';
+import MaterialInput from '../components/MaterialInput.vue';
 
-  export default {
-    setup() {
-      const store = useStore();
-      const searchQuery = ref('');
-      const router = useRouter();
-      const selectedPostId = ref(null);
-      const currentPage = ref(1);
-      const itemsPerPage = 20;
+export default {
+  setup() {
+    const store = useStore();
+    const searchQuery = ref('');
+    const router = useRouter();
+    const selectedPostId = ref(null);
+    const currentPage = ref(1);
+    const itemsPerPage = 20;
 
-      const filteredPosts = computed(() => {
-        const posts = store.getters.getPosts || [];
-        if (searchQuery.value.trim() === '') {
-          return posts;
-        } else {
-          return posts.filter(post =>
-            post.title.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
-          );
-        }
-      });
+    const filteredPosts = computed(() => {
+      const posts = store.getters.getPosts || [];
+      if (searchQuery.value.trim() === '') {
+        return posts;
+      } else {
+        return posts.filter(post =>
+          post.title.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
+        );
+      }
+    });
 
-      const paginatedPosts = computed(() => {
-        if (!filteredPosts.value) return [];
-        const start = (currentPage.value - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        return filteredPosts.value.slice(start, end);
-      });
+    const paginatedPosts = computed(() => {
+      if (!filteredPosts.value) return [];
+      const start = (currentPage.value - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      return filteredPosts.value.slice(start, end);
+    });
 
-      const totalPages = computed(() => {
-        return Math.ceil(filteredPosts.value.length / itemsPerPage);
-      });
+    const totalPages = computed(() => {
+      return Math.ceil(filteredPosts.value.length / itemsPerPage);
+    });
 
-      const searchPosts = () => {
-        store.commit('setSearchQuery', searchQuery.value);
-        store.dispatch('searchPosts');
-      };
+    const searchPosts = () => {
+      store.commit('setSearchQuery', searchQuery.value);
+      store.dispatch('searchPosts');
+    };
 
-      const changePage = (page) => {
-        if (page >= 1 && page <= totalPages.value) {
-          currentPage.value = page;
-        }
-      };
+    const changePage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+      }
+    };
 
-      const goToWritePage = () => {
-        if (store.getters.isAuthenticated) {
-          router.push('/userwritepage');
-        } else {
-          alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-          store.dispatch('goToLoginPage');
-        }
-      };
+    const goToWritePage = () => {
+      if (store.getters.isAuthenticated) {
+        router.push('/userwritepage');
+      } else {
+        alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+        store.dispatch('goToLoginPage');
+      }
+    };
 
-      const addNewPost = post => {
-        const user = store.getters.getUser;
-        post.Username = user ? user.username : '익명';
-        store.dispatch('addPost', post);
-      };
+    const addNewPost = post => {
+      const user = store.getters.getUser;
+      post.username = user ? user : '익명';
+      store.dispatch('addPost', post);
+    };
 
-      const toggleDetail = postId => {
-        if (selectedPostId.value === postId) {
-          selectedPostId.value = null;
-        } else {
-          selectedPostId.value = postId;
-        }
-      };
-
-      const clearSelectedPost = () => {
+    const toggleDetail = postId => {
+      if (selectedPostId.value === postId) {
         selectedPostId.value = null;
-      };
+      } else {
+        selectedPostId.value = postId;
+      }
+    };
 
-      const formatDate = dateString => {
-        const date = new Date(dateString);
-        return `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}-${date
-          .getDate()
-          .toString()
-          .padStart(2, '0')} ${date
-          .getHours()
-          .toString()
-          .padStart(2, '0')}:${date
-          .getMinutes()
-          .toString()
-          .padStart(2, '0')}`;
-      };
+    const clearSelectedPost = () => {
+      selectedPostId.value = null;
+    };
 
-      return {
-        filteredPosts,
-        paginatedPosts,
-        searchQuery,
-        searchPosts,
-        goToWritePage,
-        addNewPost,
-        toggleDetail,
-        selectedPostId,
-        formatDate,
-        clearSelectedPost,
-        selectedPost: computed(() =>
-          store.getters.getPosts.find(post => post.id === selectedPostId.value)
-        ),
-        currentPage,
-        totalPages,
-        changePage
-      };
-    },
-    components: {
-      MaterialPagination,
-      MaterialPaginationItem,
-      MaterialInput,
-    },
-  };
+    const formatDate = dateString => {
+      const date = new Date(dateString);
+      return `${date.getFullYear()}-${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${date
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${date
+        .getHours()
+        .toString()
+        .padStart(2, '0')}:${date
+        .getMinutes()
+        .toString()
+        .padStart(2, '0')}`;
+    };
+
+    return {
+      filteredPosts,
+      paginatedPosts,
+      searchQuery,
+      searchPosts,
+      goToWritePage,
+      addNewPost,
+      toggleDetail,
+      selectedPostId,
+      formatDate,
+      clearSelectedPost,
+      selectedPost: computed(() =>
+        store.getters.getPosts.find(post => post.id === selectedPostId.value)
+      ),
+      currentPage,
+      totalPages,
+      changePage
+    };
+  },
+  components: {
+    MaterialPagination,
+    MaterialPaginationItem,
+    MaterialInput,
+  },
+};
 </script>
-
-
-
-
 <style scoped>
 .community {
   max-width: 800px;
