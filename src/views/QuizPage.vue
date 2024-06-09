@@ -9,7 +9,7 @@
       <div class="create-problem">
         <h2>문제 생성</h2>
 
-        <!-- 언어 선택 -->
+        <!-- 언어 선택 
         <select v-model="selectedLanguage">
           <option value="">언어 선택</option>
           <option
@@ -20,11 +20,33 @@
             {{ language.name }}
           </option>
         </select>
+        -->
+
+        <!-- 문제 종류 선택 -->
+        <select v-model="selectedProblemType">
+          <option value="">문제 종류 선택</option>
+          <option
+            v-for="problemType in problemTypes"
+            :key="problemType.id"
+            :value="problemType.id">
+            {{ problemType.name }}
+          </option>
+        </select>
+
+        <select v-model="selectedDifficulty">
+          <option value="">난이도 선택</option>
+          <option 
+            v-for="n in 10"
+            :key="n"
+            :value="n">
+            {{ n }}
+          </option>
+        </select>
 
         <button
           class="btn"
           @click="createProblem"
-          :disabled="!selectedLanguage"
+          :disabled="!selectedProblemType || !selectedDifficulty"
         >
           생성
         </button>
@@ -89,13 +111,15 @@
       <div v-if="previousProblems.length" class="previous-problems">
         <h2>이전 문제들</h2>
         <ul>
-          <li v-for="problem in previousProblems" :key="problem.id">
-            <p>{{ problem.problem_text }}</p>
+          <div v-for="problem in previousProblems" :key="problem.id">
+            <h3>{{ problem.title }}</h3>
+            <!--<p>{{ problem.problem_text }}</p>-->
             <h3>
-              난이도: {{ problem.skill }}, 언어:
-              {{ getLanguageName(problem.language) }}
+              <p>난이도: {{ problem.skill }}, 언어:
+              {{ getLanguageName(problem.language) }}</p>
+              <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
             </h3>
-          </li>
+          </div>
         </ul>
       </div>
     </div>
@@ -109,9 +133,10 @@ export default {
   data() {
     return {
       code: "",
+      selectedDifficulty: 5, // 사용자가 선택한 난이도
       selectedLanguage: "", // 사용자가 선택한 언어
       editorLanguage: "", // 코드 에디터에서 사용자가 선택한 언어
-      
+      selectedProblemType: "", // 사용자가 선택한 문제 종류
       languages: [
         { id: 45, name: "Assembly (NASM 2.14.02)" },
         { id: 46, name: "Bash (5.0.0)" },
@@ -167,6 +192,10 @@ export default {
         { id: 94, name: "TypeScript (5.0.3)" },
         { id: 84, name: "Visual Basic.Net (vbnc 0.0.0.5943)" },
       ],
+      problemTypes: [
+        { id : 1, name: "수학"},
+        { id : 2, name: "프로그래밍"},
+      ],
       createdProblem: null, // 생성된 문제
       previousProblems: [], // 이전 문제들
       message: "",
@@ -183,8 +212,8 @@ export default {
           "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/make_question",
           {
             email: "admin@admin.com",
-            question_type: "수학",
-            skill: "5",
+            question_type: this.selectedProblemType,
+            skill: this.selectedDifficulty,
             //language: this.getLanguageName(this.selectedLanguage)
           },
           {
@@ -213,6 +242,7 @@ export default {
           outputExamples: outputExamples,
           difficulty: this.selectedDifficulty,
           language: this.selectedLanguage,
+          type: this.selectedProblemType,
         };
 
         /*if (response.data.success) {
@@ -265,13 +295,35 @@ export default {
         const token = localStorage.getItem("authToken"); // 로컬 스토리지에서 토큰을 가져옴
         try {
           console.log("API 요청 시작");
+          ///*
+          const response_togetid = await axios.get(
+          "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/get_my_question",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
+            },
+          }
+        );
+        this.previousProblems = response_togetid.data; // 응답 데이터에서 이전 문제들 저장
+          const lastProblem = this.previousProblems[this.previousProblems.length - 1];
+          const questionId=lastProblem? lastProblem.id:null;
+          //*/
           const response = await axios.post(
             "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/check_answer",
+            ///*
             {
-               user_code : "print(\"a\")",
-               question_id : 4,
-               language_id : "71"
+              user_code : "print(\"a\")",
+              question_id : 4,
+              language_id : "71"
             },
+            //*/
+            /*
+            {
+              user_code: this.code,
+              question_id: questionId,
+              language_id: this.editorLanguage,
+            },
+            */
             {
               headers: {
                 Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
@@ -299,9 +351,16 @@ export default {
         this.showMessage("문제와 코드를 모두 작성해 주세요.");
       }
     },
+    retryProblem(problem){
+      this.createdProblem = problem;
+      console.log("retryProblem 호출됨:", this.createdProblem);
+    },
     getLanguageName(languageId) {
       const language = this.languages.find((lang) => lang.id === languageId);
       return language ? language.name : "Unknown";
+    },
+    getProblemTitle(problem){
+      return problem.title || "제목 없음";
     },
     showMessage(message) {
       this.message = message;
