@@ -7,7 +7,9 @@
       문제 목록
     </h2>
     
-
+    <div id="discord-widget-container" v-if="showDiscordWidget" class="discord-widget">
+      <!-- Discord 위젯이 렌더링될 위치 -->
+    </div>
     <div class="container">
       <div class="left-pane">
         <ul v-if="showUserProblems" class="user-problems">
@@ -71,7 +73,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 
@@ -146,6 +147,18 @@ export default {
   },
   mounted() {
     this.fetchUserProblems();
+    const script = document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3";
+    script.async = true;
+    script.defer = true; 
+    script.onload = () => {
+      if(typeof window.Crate !== "undefined"){
+        console.log("Discord 위젯 스크립트 로드 완료");
+      } else {
+        console.error('Crate failed to load')
+      }
+    };
+    document.head.appendChild(script);
   },
   methods: {
     selectProblem(problem) {
@@ -229,8 +242,21 @@ export default {
         this.message = "";
       }, 2000); // 메시지가 2초 후에 사라지도록 설정
     },
+    requestFeedback(){
+      this.showDiscordWidget=!this.showDiscordWidget;
+
+      if(this.showDiscordWidget){
+        new window.Crate({
+          server:'1249634517908586568', // chatbot
+          channel: '1249676022631366656' // #코딩-도와줘요 채널
+        })
+      }
+    }
   },
 };
+
+
+
 </script>
 
 <style scoped>
@@ -296,4 +322,12 @@ pre {
   z-index: 1000;
   font-size: 1.5em;
 }
+
+.discord-widget {
+  margin-top: 20px; /* Discord 위젯과 다른 컨텐츠 간의 간격 조정 */
+  position: fixed;
+  right: 0; /* 왼쪽 정렬 */
+  bottom: 0; /* 하단 정렬 */
+}
+
 </style>
