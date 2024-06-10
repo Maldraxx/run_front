@@ -62,12 +62,16 @@
           </div>
         </div>
       </div>
+      <div id="discord-widget-container" v-if="showDiscordWidget" class="discord-widget">
+          <!-- Discord 위젯이 렌더링될 위치 -->
+      </div>
     </section>
   </div>
+
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import MaterialPagination from '../components/MaterialPagination.vue';
@@ -75,14 +79,47 @@ import MaterialPaginationItem from '../components/MaterialPaginationItem.vue';
 import MaterialInput from '../components/MaterialInput.vue';
 
 export default {
+  methods: {
+    
+    requestFeedback(){
+      this.showDiscordWidget=!this.showDiscordWidget;
+
+      if(this.showDiscordWidget){
+        new window.Crate({
+          server:'1249634517908586568', // chatbot
+          channel: '1249668339136073750' // #커뮤니티 채널
+        })
+      }
+    }
+  },
+  mounted() {
+    const script = document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3";
+    script.async = true;
+    script.defer = true; 
+    script.onload = () => {
+      if(typeof window.Crate !== "undefined"){
+        console.log("Discord 위젯 스크립트 로드 완료");
+        this.requestFeedback();
+      } else {
+        console.error('Crate failed to load')
+      }
+    };
+    this.requestFeedback();
+    document.head.appendChild(script);
+  },
+  beforeRouteLeave(to, from, next) {
+    this.showDiscordWidget = false;
+    next();
+  },
   setup() {
     const store = useStore();
     const searchQuery = ref('');
     const router = useRouter();
     const selectedPostId = ref(null);
+    const showDiscordWidget = ref(true);
     const currentPage = ref(1);
     const itemsPerPage = 20;
-
     const filteredPosts = computed(() => {
       const posts = store.getters.getPosts || [];
       if (searchQuery.value.trim() === '') {
@@ -93,6 +130,9 @@ export default {
         );
       }
     });
+    watch(router, () => {
+        showDiscordWidget.value = false;
+      });
 
     const paginatedPosts = computed(() => {
       if (!filteredPosts.value) return [];
@@ -170,6 +210,7 @@ export default {
       selectedPostId,
       formatDate,
       clearSelectedPost,
+      showDiscordWidget,
       selectedPost: computed(() =>
         store.getters.getPosts.find(post => post.id === selectedPostId.value)
       ),
@@ -183,6 +224,7 @@ export default {
     MaterialPaginationItem,
     MaterialInput,
   },
+  
 };
 </script>
 <style scoped>
@@ -269,4 +311,10 @@ export default {
 .post-date {
   color: #6c757d;
 }
+
+.discord-widget {
+  margin-top: 20px; /* Discord 위젯과 다른 컨텐츠 간의 간격 조정 */
+  z-index: 999;
+}
+
 </style>
