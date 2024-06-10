@@ -1,17 +1,18 @@
 <template>
   <div>
-    <h2
-      @click="showUserProblems = !showUserProblems"
-      :class="{ clicked: showUserProblems }"
-    >
-      문제 목록
-    </h2>
+    
     
     <div id="discord-widget-container" v-if="showDiscordWidget" class="discord-widget">
       <!-- Discord 위젯이 렌더링될 위치 -->
     </div>
     <div class="container">
       <div class="left-pane">
+        <h2
+          @click="showUserProblems = !showUserProblems"
+          :class="{ clicked: showUserProblems }"
+        >
+          문제 목록
+        </h2>
         <ul v-if="showUserProblems" class="user-problems">
           <li
             v-for="problem in userProblems"

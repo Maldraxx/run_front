@@ -2,70 +2,62 @@
   <div class="write-page">
     <form @submit.prevent="handleSubmit" class="form-container">
       <h2 class="title">게시글 작성</h2>
-      <!-- 수정된 부분: 제목 입력란 추가 -->
       <input v-model="title" name="title" type="text" placeholder="제목" class="form-input" required />
       <textarea v-model="content" class="form-textarea" placeholder="내용을 입력하세요." rows="10" required></textarea>
       <div class="button-container">
         <button type="button" @click="handleCancel" class="cancel-button">취소</button>
-        <Button type="submit" class="submit-button">게시하기</Button>
+        <button type="submit" class="submit-button">게시하기</button>
       </div>
     </form>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-// Button 컴포넌트 임포트
 
 export default {
-  
   setup() {
     const title = ref('');
     const content = ref('');
     const store = useStore();
     const router = useRouter();
 
+    const userEmail = computed(() => store.getters.getUser);
+
     const handleSubmit = () => {
-      // 제목과 내용을 가져옵니다.
       const titleValue = title.value.trim();
       const contentValue = content.value.trim();
-      
-      // 제목 또는 내용이 비어 있는지 확인합니다.
+
       if (!titleValue || !contentValue) {
-        // 비어 있는 경우 알림을 표시하고 함수를 종료합니다.
         alert('내용을 추가해주세요');
         return;
       }
 
-      console.log('제목:', titleValue);
-      console.log('내용:', contentValue);
+      const email = userEmail.value;
 
-      // 새로운 게시글 객체 생성
       const newPost = {
         title: titleValue,
         content: contentValue,
-        author: store.getters.getUser ? store.getters.getUser.username : '익명', // 사용자 이름 가져오기
-        date: new Date().toISOString(), // 현재 날짜를 ISO 문자열로 변환하여 추가합니다.
+        username: email, // username 필드에 이메일 추가
+        date: new Date().toISOString(),
       };
 
-      // Vuex store에 새로운 게시글 추가
       store.dispatch('addPost', newPost);
-
-      // 게시가 완료되면 커뮤니티 페이지로 이동합니다.
       router.push('/community');
     };
 
     const handleCancel = () => {
-      // 게시 취소 시 커뮤니티 페이지로 이동합니다.
       router.push('/community');
     };
+
     return {
       title,
       content,
       handleSubmit,
       handleCancel,
+      userEmail,
     };
   },
 };

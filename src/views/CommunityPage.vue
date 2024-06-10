@@ -10,50 +10,64 @@
           v-model="searchQuery"
           placeholder="검색어 입력"
           size="sm"
+          @keyup.enter="searchPosts"
         />
         <button class="btn-search" @click="searchPosts">검색</button>
         <button class="btn-write" @click="goToWritePage">게시글 작성</button>
       </div>
     </div>
 
-    <div class="community-posts">
-      <div v-if="selectedPostId === null">
-        <div v-for="(post, index) in filteredPosts" :key="post.id" class="post">
-          <router-link :to="{ name: 'SelectedPostPage', params: { postId: post.id } }" class="post-title">
-            {{ index + 1 }}. {{ post.title }}
-          </router-link>
-          <div class="post-meta">
-            <span class="post-author">{{ post.Username }}</span>
-            <span class="post-date">{{ formatDate(post.date) }}</span>
+    <table class="w3-table-all">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>등록일시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(post, index) in paginatedPosts" :key="post.id">
+          <td>{{ index + 1 }}</td> <!-- 게시글 번호가 1부터 시작하도록 설정 -->
+          <td>
+            <router-link :to="{ name: 'SelectedPostPage', params: { postId: post.id } }" class="post-title-link">
+              {{ post.title }}
+            </router-link>
+          </td>
+          <td>{{ post.username }}</td> <!-- username 부분에 이메일이 표시됨 -->
+          <td>{{ formatDate(post.date) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <section class="py-7">
+      <div class="container">
+        <div class="row justify-space-between py-2">
+          <div class="col-lg-4 mx-auto">
+            <MaterialPagination>
+              <MaterialPaginationItem prev @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+                <i class="fas fa-angle-double-left"></i>
+              </MaterialPaginationItem>
+              <MaterialPaginationItem
+                v-for="page in totalPages"
+                :key="page"
+                :label="page"
+                :active="page === currentPage"
+                @click="changePage(page)"
+              />
+              <MaterialPaginationItem next @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+                <i class="fas fa-angle-double-right"></i>
+              </MaterialPaginationItem>
+            </MaterialPagination>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <section class="py-7">
-    <div class="container">
-      <div class="row justify-space-between py-2">
-        <div class="col-lg-4 mx-auto">
-          <MaterialPagination>
-            <MaterialPaginationItem prev class="ms-auto">
-              <i class="fas fa-angle-double-left"></i>
-            </MaterialPaginationItem>
-            <MaterialPaginationItem label="1" active />
-            <MaterialPaginationItem label="2" />
-            <MaterialPaginationItem label="3" />
-            <MaterialPaginationItem label="4" />
-            <MaterialPaginationItem label="5" />
-            <MaterialPaginationItem next>
-              <i class="fas fa-angle-double-right"></i>
-            </MaterialPaginationItem>
-          </MaterialPagination>
-        </div>
-      </div>
-    </div>
-    <div id="discord-widget-container" v-if="showDiscordWidget" class="discord-widget">
+      <div id="discord-widget-container" v-if="showDiscordWidget" class="discord-widget">
           <!-- Discord 위젯이 렌더링될 위치 -->
-    </div>
-  </section>
+      </div>
+    </section>
+  </div>
+
 </template>
 
 <script>
@@ -104,8 +118,10 @@ export default {
     const router = useRouter();
     const selectedPostId = ref(null);
     const showDiscordWidget = ref(true);
+    const currentPage = ref(1);
+    const itemsPerPage = 20;
     const filteredPosts = computed(() => {
-      const posts = store.getters.getPosts;
+      const posts = store.getters.getPosts || [];
       if (searchQuery.value.trim() === '') {
         return posts;
       } else {
@@ -118,12 +134,25 @@ export default {
         showDiscordWidget.value = false;
       });
 
+    const paginatedPosts = computed(() => {
+      if (!filteredPosts.value) return [];
+      const start = (currentPage.value - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      return filteredPosts.value.slice(start, end);
+    });
+
+    const totalPages = computed(() => {
+      return Math.ceil(filteredPosts.value.length / itemsPerPage);
+    });
+
     const searchPosts = () => {
-      const matchingPost = filteredPosts.value[0];
-      if (matchingPost) {
-        selectedPostId.value = matchingPost.id;
-      } else {
-        alert('검색어에 해당하는 게시글이 없습니다.');
+      store.commit('setSearchQuery', searchQuery.value);
+      store.dispatch('searchPosts');
+    };
+
+    const changePage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
       }
     };
 
@@ -138,7 +167,7 @@ export default {
 
     const addNewPost = post => {
       const user = store.getters.getUser;
-      post.Username = user ? user.username : '익명';
+      post.username = user ? user : '익명';
       store.dispatch('addPost', post);
     };
 
@@ -172,6 +201,7 @@ export default {
 
     return {
       filteredPosts,
+      paginatedPosts,
       searchQuery,
       searchPosts,
       goToWritePage,
@@ -184,6 +214,9 @@ export default {
       selectedPost: computed(() =>
         store.getters.getPosts.find(post => post.id === selectedPostId.value)
       ),
+      currentPage,
+      totalPages,
+      changePage
     };
   },
   components: {
@@ -194,8 +227,6 @@ export default {
   
 };
 </script>
-
-
 <style scoped>
 .community {
   max-width: 800px;
@@ -250,10 +281,6 @@ export default {
   border-radius: 4px;
 }
 
-.community-posts {
-  display: block;
-}
-
 .post {
   border: 1px solid #ccc;
   padding: 20px;
@@ -284,6 +311,7 @@ export default {
 .post-date {
   color: #6c757d;
 }
+
 .discord-widget {
   margin-top: 20px; /* Discord 위젯과 다른 컨텐츠 간의 간격 조정 */
   z-index: 999;

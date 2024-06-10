@@ -1,3 +1,4 @@
+<!-- 사용안함 삭제해도 무방함
 <template>
   <div class="board-list">
     <div class="common-buttons">
@@ -124,4 +125,4 @@ export default {
     padding: 8px;
     text-align: right;
 }
-</style>
+</style> -->

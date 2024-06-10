@@ -363,12 +363,7 @@ watch(
                       >
                         <span>Regist</span>
                       </RouterLink>
-                      <RouterLink
-                        :to="{ name: 'ListEx' }"
-                        class="dropdown-item border-radius-md"
-                      >
-                        <span>List</span>
-                      </RouterLink>
+                      <!-- 기존 ListEx.vue 링크 사용해서 삭제함 -->
                     </div>
                   </div>
                 </div>
