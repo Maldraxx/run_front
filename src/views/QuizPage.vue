@@ -102,21 +102,26 @@
         <pre>{{ result }}</pre>
       </div>
 
-      <div v-if="previousProblems.length" class="previous-problems">
-        <h2>이전 문제들</h2>
-        <ul>
-          <div v-for="problem in previousProblems" :key="problem.id">
-            <h3>{{ problem.title }}</h3>
-            <!--<p>{{ problem.problem_text }}</p>-->
-            <h3>
-              <p>난이도: {{ problem.skill }}, 언어:
-              {{ getLanguageName(problem.language) }}</p>
-              <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
-            </h3>
+      <div class="container">
+        <div class="content-2">
+          <div v-if="previousProblems.length" class="previous-problems">
+            <h2>이전 문제들</h2>
+            <ul>
+              <div v-for="problem in previousProblems" :key="problem.id">
+                <h3>{{ problem.title }}</h3>
+                <!--<p>{{ problem.problem_text }}</p>-->
+                <h3>
+                  <p>난이도: {{ problem.skill }}, 언어:
+                  {{ getLanguageName(problem.language) }}</p>
+                  <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
+                </h3>
+              </div>
+            </ul>
           </div>
-        </ul>
-      </div>
-    </div>
+        </div>  
+      </div> 
+    </div> 
+
   </div>
 </template>
 
@@ -378,22 +383,33 @@ export default {
 </script>
 
 <style scoped>
+/* 기본적인 스타일 설정 */
 .quiz-page {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.container {
+.container-previous {
   max-width: 1200px;
   margin: 20px auto;
   padding: 0 20px;
   justify-content: space-between;
-  display :flex;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.flex-container {
+  display: inline-flex;
+}
+.flex-item {
+  width: 50%;
+  margin: 4px;
+  text-align: center;
 }
 .content {
   display: flex;
   justify-content: space-between;
-  width: 1200px;
+  width: 100%;
 }
 
 .problem-display {
@@ -436,7 +452,7 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-top: 20px;
+  margin: 20px;
   background-color: #f0f0f0;
   padding: 20px;
   border-radius: 10px;
@@ -512,8 +528,8 @@ export default {
 }
 
 .previous-problems {
-  background-color: #faf7ff;
-  border-radius: 4px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
   padding: 20px;
   margin-top: 20px;
 }
