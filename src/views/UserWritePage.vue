@@ -65,51 +65,69 @@ export default {
 
 <style scoped>
 .write-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
   padding: 20px;
-  background-color: #f2f2f2;
-  border-radius: 8px;
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .form-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .title {
-  color: #003a9a;
+  align-self: flex-start;
   margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .form-input,
 .form-textarea {
-  margin-bottom: 10px;
+  width: 100%;
   padding: 10px;
-  border-radius: 4px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .button-container {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
-.cancel-button,
-.submit-button {
-  padding: 10px 20px;
-  border: none;
+.cancel-button, .submit-button {
+  padding: 10px 15px;
+  color: #003a9a;
+  border: 1px solid #003a9a;
+  background-color: transparent;
   border-radius: 4px;
+  font-size: 18px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color color 0.3s ease, border-color 0.3s ease;
 }
 
-.cancel-button {
-  background-color: #f44336;
-  color: white;
-}
-
-.submit-button {
-  background-color: #4caf50;
-  color: white;
+.cancel-button:hover, .submit-button:hover {
+  background-color: #fff; /* 호버 시 배경색 유지 */
+  color: #87CEEB; /* 호버 시 글씨 색상 하늘색 */
+  border-color: #87CEEB; /* 호버 시 테두리 색상 하늘색 */
 }
 </style>

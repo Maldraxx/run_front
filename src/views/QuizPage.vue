@@ -1,13 +1,9 @@
 <template>
-  <div>
-    <div class="header">
-      <h1>코딩 테스트</h1>
-    </div>
-
+  <div class="quiz-page"> 
     <!-- 문제 생성 섹션 -->
     <div class="action-container">
       <div class="create-problem">
-        <h2>문제 생성</h2>
+        <h4>문제 생성</h4>
 
         <!-- 언어 선택 
         <select v-model="selectedLanguage">
@@ -23,6 +19,7 @@
         -->
 
         <!-- 문제 종류 선택 -->
+      
         <select v-model="selectedProblemType">
           <option value="">문제 종류 선택</option>
           <option
@@ -32,7 +29,6 @@
             {{ problemType.name }}
           </option>
         </select>
-
         <select v-model="selectedDifficulty">
           <option value="">난이도 선택</option>
           <option 
@@ -42,17 +38,15 @@
             {{ n }}
           </option>
         </select>
-
         <button
           class="btn"
           @click="createProblem"
-          :disabled="!selectedProblemType || !selectedDifficulty"
-        >
+          :disabled="!selectedProblemType || !selectedDifficulty" >
           생성
-        </button>
+        </button>  
         <button class="btn" @click="fetchPreviousProblems">
           이전 문제 불러오기
-        </button>
+        </button>       
       </div>
     </div>
 
@@ -384,35 +378,33 @@ export default {
 </script>
 
 <style scoped>
+.quiz-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .container {
   max-width: 1200px;
   margin: 20px auto;
   padding: 0 20px;
+  justify-content: space-between;
+  display :flex;
 }
-
-.header {
-  background-color: #003a9a;
-  color: #faf7ff;
-  padding: 20px;
-  text-align: center;
-}
-
-.header h1 {
-  margin: 0;
-}
-
 .content {
   display: flex;
   justify-content: space-between;
+  width: 1200px;
 }
 
 .problem-display {
   flex: 1;
-  background-color: #faf7ff;
+  background-color: #f0f0f0;
   border-radius: 4px;
   padding: 20px;
   margin-right: 10px;
   max-width: 48%;
+  overflow-y: auto;
+  border-radius: 10px;
 }
 
 .problem-display .problem-text {
@@ -421,8 +413,8 @@ export default {
 
 .editor {
   flex: 1;
-  background-color: #faf7ff;
-  border-radius: 4px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
   padding: 20px;
   max-width: 48%;
 }
@@ -434,33 +426,39 @@ export default {
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f2f2f2;
-  color: #333;
+  color: #000000;
 }
 
 .action-container {
+  width: 100%;
   max-width: 800px;
-  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
 }
 
 .create-problem {
   display: flex;
-  flex-direction: column; /* Flex direction to column for better layout */
-  align-items: flex-start; /* Align items to the start */
+  align-items: center; /* 높이 중앙 정렬 */
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
 }
 
-.create-problem h2 {
-  margin-bottom: 10px; /* Margin bottom for better spacing */
-}
-
-.create-problem input,
-.create-problem select {
-  margin-bottom: 10px; /* Margin bottom for better spacing */
-  padding: 10px; /* Padding for better look */
-  width: 100%; /* Full width */
-  max-width: 300px; /* Max width */
+.create-problem select, h4, input {
+  height: 40px; /* 동일한 높이로 설정 */
+  display: flex;
+  align-items: center; /* 높이 중앙 정렬 */
+  margin-bottom: 0;
 }
 
 .create-problem .btn {
+  height: 40px;
   background-color: #004aad;
   color: #faf7ff;
   padding: 10px 20px;
@@ -468,7 +466,7 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   margin-right: 10px; /* 버튼 간격 추가 */
-  margin-bottom: 10px; /* Margin bottom for better spacing */
+  margin: 15px 0; /* 버튼 위아래 여백 추가 */
 }
 
 .create-problem .btn:last-child {
@@ -480,12 +478,14 @@ export default {
 }
 
 .btn {
+  height: 40px;
   background-color: #004aad;
   color: #faf7ff;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-top: 1px;
 }
 
 .btn:hover {
