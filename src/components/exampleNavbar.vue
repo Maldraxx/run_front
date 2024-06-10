@@ -64,6 +64,16 @@ const toggleHelloDropdown = (event) => {
   pagesDropdownVisible.value = false;
   communityDropdownVisible.value = false;
 };
+const closeDropdowns = () => {
+  pagesDropdownVisible.value = false;
+  communityDropdownVisible.value = false;
+  helloDropdownVisible.value = false;
+};
+router.afterEach(() => {
+  closeDropdowns();
+});
+
+
 watchEffect(() => {
   console.log("Pages Dropdown Visible:", pagesDropdownVisible.value);
   console.log("Community Dropdown Visible:", communityDropdownVisible.value);
@@ -84,7 +94,7 @@ const userNameDisplay = computed(() => {
   }
   return "Hello";
 });
-
+7
 function login() {
   router.push({ name: 'Login' });
 }
@@ -92,6 +102,8 @@ function login() {
 function handleLogout() {
   logout();
   router.push({ name: 'Home' });
+  location.reload();
+  console.log("logout");
 }
 
 // set arrow  color
@@ -191,9 +203,9 @@ watch(
       </RouterLink>
       <a
         href="/login"
-        class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container"
-        >Login</a
-      >
+        class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-if="!isAuthenticated"
+        >{{ isAuthenticated ? 'Logout' : 'Login' }}</a>
+        <a href="#" class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-else @click.prevent="handleLogout()">Logout</a>
       <button
         class="navbar-toggler shadow-none ms-2"
         type="button"
