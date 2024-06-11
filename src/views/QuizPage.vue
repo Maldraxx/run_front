@@ -44,9 +44,11 @@
           :disabled="!selectedProblemType || !selectedDifficulty" >
           생성
         </button>  
+        <!--  사용 안함
         <button class="btn" @click="fetchPreviousProblems">
           이전 문제 불러오기
         </button>       
+        -->
       </div>
     </div>
 
@@ -101,26 +103,27 @@
         <h2>결과</h2>
         <pre>{{ result }}</pre>
       </div>
-
-      <div class="container">
-        <div class="content-2">
-          <div v-if="previousProblems.length" class="previous-problems">
-            <h2>이전 문제들</h2>
-            <ul>
-              <div v-for="problem in previousProblems" :key="problem.id">
-                <h3>{{ problem.title }}</h3>
-                <!--<p>{{ problem.problem_text }}</p>-->
-                <h3>
-                  <p>난이도: {{ problem.skill }}, 언어:
-                  {{ getLanguageName(problem.language) }}</p>
-                  <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
-                </h3>
-              </div>
-            </ul>
-          </div>
-        </div>  
-      </div> 
-    </div> 
+       <!-- 사용 안함
+        <div class="container">
+          <div class="content-2">
+            <div v-if="previousProblems.length" class="previous-problems">
+              <h2>이전 문제들</h2>
+              <ul>
+                <div v-for="problem in previousProblems" :key="problem.id">
+                  <h3>{{ problem.title }}</h3>
+                  <p>{{ problem.problem_text }}</p>
+                  <h3>
+                    <p>난이도: {{ problem.skill }}, 언어:
+                    {{ getLanguageName(problem.language) }}</p>
+                    <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
+                  </h3>
+                </div>
+              </ul>
+            </div>
+          </div>  
+        </div>
+      -->
+    </div>  
 
   </div>
 </template>
