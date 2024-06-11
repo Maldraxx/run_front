@@ -321,7 +321,7 @@ export default {
             },
           }
         );
-          console.log("API 응답 받음:", JSON.stringify(response.data, null, 2));
+          console.log("API 응답 받음:", JSON.stringify(response_togetid.data, null, 2));
           this.previousProblems = response_togetid.data.questions || response_togetid.data; // 응답 데이터에서 이전 문제들 저장
           const lastProblem = this.previousProblems[this.previousProblems.length - 1];
           const questionId=lastProblem? lastProblem.id:null;
