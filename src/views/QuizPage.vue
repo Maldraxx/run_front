@@ -360,20 +360,20 @@ export default {
           console.error("에러 발생:", error);
           console.log("에러 응답 데이터:", error.response?.data);
           if (error.response) {
-        console.log("Error response status:", error.response.status);
-        console.log("Error response headers:", JSON.stringify(error.response.headers, null, 2));
-        this.showMessage(
-          `코드 제출 중 오류가 발생했습니다: ${
-            error.response.data?.message || error.response.data || error.message
-          }`
-        );
-      } else {
-        this.showMessage(`코드 제출 중 오류가 발생했습니다: ${error.message}`);
+            console.log("Error response status:", error.response.status);
+            console.log("Error response headers:", JSON.stringify(error.response.headers, null, 2));
+            this.showMessage(
+            `코드 제출 중 오류가 발생했습니다: ${
+              error.response.data?.message || error.response.data || error.message
+            }`
+          );
+        } else {
+          this.showMessage(`코드 제출 중 오류가 발생했습니다: ${error.message}`);
+        }
       }
+    } else {
+      this.showMessage("문제와 코드를 모두 작성해 주세요.");
     }
-  } else {
-    this.showMessage("문제와 코드를 모두 작성해 주세요.");
-  }
 
     },
     retryProblem(problem){
