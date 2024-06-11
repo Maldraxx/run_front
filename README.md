@@ -28,11 +28,6 @@ cd ./run_front
 
 ## Project setup
 
-```
-
-
-
-
 ## npm :  Node Package Manger 이기 때문에 " https://nodejs.org/ko/ " 에서 설치를합니다. 혹은 vscode에서 node js 를 설치합니다.
 
 ##  node -v 로 정상적으로 설치가 되었는지 확인합니다.
@@ -40,6 +35,7 @@ cd ./run_front
 ## 그 후 아래 명령어를 통하여 npm을 설치를 합니다.
 
 1. 설치하기
+
 ```
 
 npm install
@@ -49,6 +45,7 @@ npm install
 ### Compiles and hot-reloads for development
 
 2. 실행하기 (반드시 run_front 디렉토리에서 실행해야합니다.)
+
 ```
 
 npm run serve
