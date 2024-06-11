@@ -201,11 +201,11 @@ watch(
       >
         블루코드!!!
       </RouterLink>
-      <a
+      <!-- <a
         href="/login"
         class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-if="!isAuthenticated"
         >{{ isAuthenticated ? 'Logout' : 'Login' }}</a>
-        <a href="#" class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-else @click.prevent="handleLogout()">Logout</a>
+        <a href="#" class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-else @click.prevent="handleLogout()">Logout</a> -->
       <button
         class="navbar-toggler shadow-none ms-2"
         type="button"
