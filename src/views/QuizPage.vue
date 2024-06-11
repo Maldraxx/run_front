@@ -196,7 +196,20 @@ export default {
       ],
       problemTypes: [
         { id : 1, name: "수학"},
-        { id : 2, name: "프로그래밍"},
+        { id : 2, name: "구현"},
+        { id : 3, name: "다이나믹 프로그래밍"},
+        { id : 4, name: "자료 구조"},
+        { id : 5, name: "정렬"},
+        { id : 6, name: "정수론"},
+        { id : 7, name: "트리"},
+        { id : 8, name: "시뮬레이션"},
+        { id : 9, name: "너비 우선 탐색"},
+        { id : 10, name: "백트래킹"},
+        { id : 11, name: "최단 경로"},
+        { id : 12, name: "파싱"},
+        { id : 13, name: "우선순위 큐"},
+        { id : 14, name: "소수 판정"},
+        { id : 15, name: "스택"},
       ],
       createdProblem: null, // 생성된 문제
       previousProblems: [], // 이전 문제들
