@@ -1,15 +1,11 @@
 <template>
-  <div>
-    <div class="header">
-      <h1>코딩 테스트</h1>
-    </div>
-
+  <div class="quiz-page"> 
     <!-- 문제 생성 섹션 -->
     <div class="action-container">
       <div class="create-problem">
-        <h2>문제 생성</h2>
+        <h4>문제 생성</h4>
 
-        <!-- 언어 선택 -->
+        <!-- 언어 선택 
         <select v-model="selectedLanguage">
           <option value="">언어 선택</option>
           <option
@@ -20,17 +16,37 @@
             {{ language.name }}
           </option>
         </select>
+        -->
 
+        <!-- 문제 종류 선택 -->
+      
+        <select v-model="selectedProblemType">
+          <option value="">문제 종류 선택</option>
+          <option
+            v-for="problemType in problemTypes"
+            :key="problemType.id"
+            :value="problemType.id">
+            {{ problemType.name }}
+          </option>
+        </select>
+        <select v-model="selectedDifficulty">
+          <option value="">난이도 선택</option>
+          <option 
+            v-for="n in 10"
+            :key="n"
+            :value="n">
+            {{ n }}
+          </option>
+        </select>
         <button
           class="btn"
           @click="createProblem"
-          :disabled="!selectedLanguage"
-        >
+          :disabled="!selectedProblemType || !selectedDifficulty" >
           생성
-        </button>
+        </button>  
         <button class="btn" @click="fetchPreviousProblems">
           이전 문제 불러오기
-        </button>
+        </button>       
       </div>
     </div>
 
@@ -86,19 +102,26 @@
         <pre>{{ result }}</pre>
       </div>
 
-      <div v-if="previousProblems.length" class="previous-problems">
-        <h2>이전 문제들</h2>
-        <ul>
-          <li v-for="problem in previousProblems" :key="problem.id">
-            <p>{{ problem.problem_text }}</p>
-            <h3>
-              난이도: {{ problem.skill }}, 언어:
-              {{ getLanguageName(problem.language) }}
-            </h3>
-          </li>
-        </ul>
-      </div>
-    </div>
+      <div class="container">
+        <div class="content-2">
+          <div v-if="previousProblems.length" class="previous-problems">
+            <h2>이전 문제들</h2>
+            <ul>
+              <div v-for="problem in previousProblems" :key="problem.id">
+                <h3>{{ problem.title }}</h3>
+                <!--<p>{{ problem.problem_text }}</p>-->
+                <h3>
+                  <p>난이도: {{ problem.skill }}, 언어:
+                  {{ getLanguageName(problem.language) }}</p>
+                  <button class="btn" @click="retryProblem(problem)">다시 풀기</button>
+                </h3>
+              </div>
+            </ul>
+          </div>
+        </div>  
+      </div> 
+    </div> 
+
   </div>
 </template>
 
@@ -109,9 +132,10 @@ export default {
   data() {
     return {
       code: "",
+      selectedDifficulty: 5, // 사용자가 선택한 난이도
       selectedLanguage: "", // 사용자가 선택한 언어
       editorLanguage: "", // 코드 에디터에서 사용자가 선택한 언어
-      
+      selectedProblemType: "", // 사용자가 선택한 문제 종류
       languages: [
         { id: 45, name: "Assembly (NASM 2.14.02)" },
         { id: 46, name: "Bash (5.0.0)" },
@@ -167,6 +191,10 @@ export default {
         { id: 94, name: "TypeScript (5.0.3)" },
         { id: 84, name: "Visual Basic.Net (vbnc 0.0.0.5943)" },
       ],
+      problemTypes: [
+        { id : 1, name: "수학"},
+        { id : 2, name: "프로그래밍"},
+      ],
       createdProblem: null, // 생성된 문제
       previousProblems: [], // 이전 문제들
       message: "",
@@ -183,8 +211,8 @@ export default {
           "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/make_question",
           {
             email: "admin@admin.com",
-            question_type: "수학",
-            skill: "5",
+            question_type: this.selectedProblemType,
+            skill: this.selectedDifficulty,
             //language: this.getLanguageName(this.selectedLanguage)
           },
           {
@@ -213,6 +241,7 @@ export default {
           outputExamples: outputExamples,
           difficulty: this.selectedDifficulty,
           language: this.selectedLanguage,
+          type: this.selectedProblemType,
         };
 
         /*if (response.data.success) {
@@ -265,13 +294,46 @@ export default {
         const token = localStorage.getItem("authToken"); // 로컬 스토리지에서 토큰을 가져옴
         try {
           console.log("API 요청 시작");
+
+
+          ///* 이전 문제들 중 가장 최근 문제의 ID를 가져오기
+          const response_togetid = await axios.get(
+          "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/get_my_question",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
+            },
+          }
+        );
+          console.log("API 응답 받음:", JSON.stringify(response.data, null, 2));
+          this.previousProblems = response_togetid.data.questions || response_togetid.data; // 응답 데이터에서 이전 문제들 저장
+          const lastProblem = this.previousProblems[this.previousProblems.length - 1];
+          const questionId=lastProblem? lastProblem.id:null;
+          //*/
+
+
           const response = await axios.post(
             "https://destiny-back-63f6h32ypq-de.a.run.app/blue/question/check_answer",
+
+
+            /* 테스트용 무조건 맞게하는 코드
             {
-               user_code : "print(\"a\")",
-               question_id : 4,
-               language_id : "71"
+              user_code : "print(\"a\")",
+              question_id : 4,
+              language_id : "71"
             },
+            */
+
+
+            ///* 진짜 문제 정답 및 오답처리 코드
+            {
+              user_code: this.code,
+              question_id: questionId,
+              language_id: this.editorLanguage,
+            },
+            //*/
+
+
             {
               headers: {
                 Authorization: `Bearer ${token}`, // 요청 헤더에 토큰을 포함
@@ -279,6 +341,7 @@ export default {
             }
           );
           console.log("API 응답 받음:", JSON.stringify(response.data, null, 2));
+          
         // 응답 데이터에 따라 처리
         this.result = response.data; // 결과를 result 변수에 저장
         if (this.result === "Success : True") {
@@ -299,9 +362,16 @@ export default {
         this.showMessage("문제와 코드를 모두 작성해 주세요.");
       }
     },
+    retryProblem(problem){
+      this.createdProblem = problem;
+      console.log("retryProblem 호출됨:", this.createdProblem);
+    },
     getLanguageName(languageId) {
       const language = this.languages.find((lang) => lang.id === languageId);
       return language ? language.name : "Unknown";
+    },
+    getProblemTitle(problem){
+      return problem.title || "제목 없음";
     },
     showMessage(message) {
       this.message = message;
@@ -314,35 +384,44 @@ export default {
 </script>
 
 <style scoped>
-.container {
+/* 기본적인 스타일 설정 */
+.quiz-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.container-previous {
   max-width: 1200px;
   margin: 20px auto;
   padding: 0 20px;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-.header {
-  background-color: #003a9a;
-  color: #faf7ff;
-  padding: 20px;
+.flex-container {
+  display: inline-flex;
+}
+.flex-item {
+  width: 50%;
+  margin: 4px;
   text-align: center;
 }
-
-.header h1 {
-  margin: 0;
-}
-
 .content {
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 .problem-display {
   flex: 1;
-  background-color: #faf7ff;
+  background-color: #f0f0f0;
   border-radius: 4px;
   padding: 20px;
   margin-right: 10px;
   max-width: 48%;
+  overflow-y: auto;
+  border-radius: 10px;
 }
 
 .problem-display .problem-text {
@@ -351,8 +430,8 @@ export default {
 
 .editor {
   flex: 1;
-  background-color: #faf7ff;
-  border-radius: 4px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
   padding: 20px;
   max-width: 48%;
 }
@@ -364,33 +443,39 @@ export default {
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #f2f2f2;
-  color: #333;
+  color: #000000;
 }
 
 .action-container {
+  width: 100%;
   max-width: 800px;
-  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 20px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
 }
 
 .create-problem {
   display: flex;
-  flex-direction: column; /* Flex direction to column for better layout */
-  align-items: flex-start; /* Align items to the start */
+  align-items: center; /* 높이 중앙 정렬 */
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
 }
 
-.create-problem h2 {
-  margin-bottom: 10px; /* Margin bottom for better spacing */
-}
-
-.create-problem input,
-.create-problem select {
-  margin-bottom: 10px; /* Margin bottom for better spacing */
-  padding: 10px; /* Padding for better look */
-  width: 100%; /* Full width */
-  max-width: 300px; /* Max width */
+.create-problem select, h4, input {
+  height: 40px; /* 동일한 높이로 설정 */
+  display: flex;
+  align-items: center; /* 높이 중앙 정렬 */
+  margin-bottom: 0;
 }
 
 .create-problem .btn {
+  height: 40px;
   background-color: #004aad;
   color: #faf7ff;
   padding: 10px 20px;
@@ -398,7 +483,7 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   margin-right: 10px; /* 버튼 간격 추가 */
-  margin-bottom: 10px; /* Margin bottom for better spacing */
+  margin: 15px 0; /* 버튼 위아래 여백 추가 */
 }
 
 .create-problem .btn:last-child {
@@ -410,12 +495,14 @@ export default {
 }
 
 .btn {
+  height: 40px;
   background-color: #004aad;
   color: #faf7ff;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-top: 1px;
 }
 
 .btn:hover {
@@ -442,8 +529,8 @@ export default {
 }
 
 .previous-problems {
-  background-color: #faf7ff;
-  border-radius: 4px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
   padding: 20px;
   margin-top: 20px;
 }

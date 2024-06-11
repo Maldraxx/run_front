@@ -1,10 +1,11 @@
 <script setup>
 import { ref, watch, computed} from "vue";
 import { useWindowsWidth } from "../assets/js/useWindowsWidth";
-import { defineProps } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-
+import { RouterLink } from 'vue-router';
+import { defineProps, defineEmits } from 'vue';
+import { watchEffect } from 'vue';
 import ArrDark from "../assets/img/down-arrow-dark.svg";
 import DownArrWhite from "../assets/img/down-arrow-white.svg";
 
@@ -14,9 +15,7 @@ const props = defineProps({
     route: String,
     color: String,
     label: String,
-    default: () => ({
-      
-    })
+    default: () => ({})
   },
   transparent: { type: Boolean, default: false },
   light: { type: Boolean, default: false },
@@ -24,8 +23,62 @@ const props = defineProps({
   sticky: { type: Boolean, default: false },
   darkText: { type: Boolean, default: false },
 });
+const emits = defineEmits(['toggle-menu']); // toggle-menu 이벤트 추가
+//const emitToggleMenu = emits('toggle-menu');
 const store = useStore();
 const router = useRouter();
+const menuVisible = ref(false); // 메뉴 토글 상태 추가
+const toggleMenu= () => {
+  menuVisible.value = !menuVisible.value;
+  emits('toggle-menu', menuVisible.value); // toggle-menu 이벤트 발생
+  //emitToggleMenu();
+  
+};
+
+
+const pagesDropdownVisible = ref(false);  
+const communityDropdownVisible = ref(false); 
+const helloDropdownVisible = ref(false);
+
+const togglePagesDropdown = (event) => {
+  event.preventDefault(); 
+  event.stopPropagation(); // 이벤트 전파 중지
+  console.log("togglePagesDropdown clicked");
+  pagesDropdownVisible.value = !pagesDropdownVisible.value;
+  communityDropdownVisible.value = false;
+  helloDropdownVisible.value = false;
+};
+const toggleCommunityDropdown = (event) => {
+  event.preventDefault(); 
+  event.stopPropagation(); // 이벤트 전파 중지
+  console.log("toggleCommunityDropdown clicked");
+  communityDropdownVisible.value = !communityDropdownVisible.value;
+  pagesDropdownVisible.value = false;
+  helloDropdownVisible.value = false;
+};
+const toggleHelloDropdown = (event) => {
+  event.preventDefault(); 
+  event.stopPropagation(); // 이벤트 전파 중지
+  console.log("toggleHelloDropdown clicked");
+  helloDropdownVisible.value = !helloDropdownVisible.value;
+  pagesDropdownVisible.value = false;
+  communityDropdownVisible.value = false;
+};
+const closeDropdowns = () => {
+  pagesDropdownVisible.value = false;
+  communityDropdownVisible.value = false;
+  helloDropdownVisible.value = false;
+};
+router.afterEach(() => {
+  closeDropdowns();
+});
+
+
+watchEffect(() => {
+  console.log("Pages Dropdown Visible:", pagesDropdownVisible.value);
+  console.log("Community Dropdown Visible:", communityDropdownVisible.value);
+  console.log("Hello Dropdown Visible:", helloDropdownVisible.value);
+});
 
 const isAuthenticated = computed(() => store.getters.isAuthenticated);
 const getUser = computed(() => store.getters.getUser);
@@ -41,7 +94,7 @@ const userNameDisplay = computed(() => {
   }
   return "Hello";
 });
-
+7
 function login() {
   router.push({ name: 'Login' });
 }
@@ -49,6 +102,8 @@ function login() {
 function handleLogout() {
   logout();
   router.push({ name: 'Home' });
+  location.reload();
+  console.log("logout");
 }
 
 // set arrow  color
@@ -95,6 +150,8 @@ watch(
     }
   }
 );
+
+
 
 </script>
 
@@ -146,9 +203,9 @@ watch(
       </RouterLink>
       <a
         href="/login"
-        class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container"
-        >Login</a
-      >
+        class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-if="!isAuthenticated"
+        >{{ isAuthenticated ? 'Logout' : 'Login' }}</a>
+        <a href="#" class="btn btn-outline-info w-auto me-2 d-lg-none d-block ms-auto login-button-container" v-else @click.prevent="handleLogout()">Logout</a>
       <button
         class="navbar-toggler shadow-none ms-2"
         type="button"
@@ -157,6 +214,8 @@ watch(
         aria-controls="navigation"
         aria-expanded="false"
         aria-label="Toggle navigation"
+        style="box-shadow: none !important; border: none !important;"
+        @click="toggleMenu" 
       >
         <span class="navbar-toggler-icon mt-2">
           <span class="navbar-toggler-bar bar1"></span>
@@ -167,6 +226,7 @@ watch(
       <div
         class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0"
         id="navigation"
+        :class="{ 'show': menuVisible }"
       >
       <!-- Sections -->
         <ul class="navbar-nav navbar-nav-hover ms-auto">
@@ -177,8 +237,10 @@ watch(
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"  
               :class="getTextColor()"
               id="dropdownMenuPages"
+              @click="togglePagesDropdown"
+              aria-haspopup="true"
               data-bs-toggle="dropdown"
-              aria-expanded="false"
+              :aria-expanded="pagesDropdownVisible ? 'true' : 'false'"
             >
             <i><img src="../assets/img/iconimg1.png" /></i > <!-- 여기서 material-icons 아이콘을 사용 -->
               Pages
@@ -196,6 +258,10 @@ watch(
             <div
               class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
               aria-labelledby="dropdownMenuPages"
+              v-show="pagesDropdownVisible"
+              @click.stop
+              :class="{ 'show': pagesDropdownVisible }"
+              style="right: 0; top: calc(100% + 10px); max-height: fit-content; overflow: hidden;"
             >
               <div class="row d-none d-lg-block">
                 <div class="col-12 px-4 py-2">
@@ -243,15 +309,17 @@ watch(
               </div>
             </div>
           </li>
-          <!-- 문제 등록 페이지 nav --> 
+          <!-- 커뮤니티 nav --> 
           <li class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownMenuBlocks"
+              @click="toggleCommunityDropdown"
               data-bs-toggle="dropdown"
-              aria-expanded="false"
+              aria-haspopup="true"
+              aria-expanded="communityDropdownVisible ? 'true' : 'false'"
             >
             <i><img src="../assets/img/iconimg1.png" /></i >
               Community 
@@ -269,6 +337,10 @@ watch(
             <div
               class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
               aria-labelledby="dropdownMenuPages"
+              v-show="communityDropdownVisible"
+              @click.stop
+              :class="{ 'show': communityDropdownVisible }"
+              style="right: 0; top: calc(100% + 10px); max-height: fit-content; overflow: hidden;"
             >
               <div class="row d-none d-lg-block">
                 <div class="col-12 px-4 py-2">
@@ -291,12 +363,7 @@ watch(
                       >
                         <span>Regist</span>
                       </RouterLink>
-                      <RouterLink
-                        :to="{ name: 'ListEx' }"
-                        class="dropdown-item border-radius-md"
-                      >
-                        <span>List</span>
-                      </RouterLink>
+                      <!-- 기존 ListEx.vue 링크 사용해서 삭제함 -->
                     </div>
                   </div>
                 </div>
@@ -330,8 +397,10 @@ watch(
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownMenuDocs"
+              @click="toggleHelloDropdown"
               data-bs-toggle="dropdown"
-              aria-expanded="false"
+              aria-haspopup="true"
+              aria-expanded="helloDropdownVisible ? 'true' : 'f"
             >
               <i><img src="../assets/img/iconimg1.png" /></i >
                  {{ userNameDisplay }}<!-- {{ userNameDisplay }}사용자 이름 또는 기본 메시지 표시 -->
@@ -349,6 +418,10 @@ watch(
             <div
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation dropdown-md mt-0 mt-lg-3 p-3 border-radius-lg"
               aria-labelledby="dropdownMenuDocs"
+              v-show="helloDropdownVisible"
+              @click.stop
+              :class="{ 'show': helloDropdownVisible }"
+              style="right: 0; top: calc(100% + 10px); max-height: fit-content; overflow: hidden;"
             >
               <div class="d-none d-lg-block">
                 <ul class="list-group">
@@ -445,6 +518,7 @@ watch(
   </nav>
   <!-- End Navbar -->
 </template>
+
 <style>
 .login-button-container {
   margin-top : 16px;
@@ -473,4 +547,15 @@ watch(
     font-weight: bold;
     color: #003a9a;
   }
+  .dropdown-menu {
+  display: none; /* 기본적으로 숨김 */
+  position: absolute;
+  background-color: #fff; /* 드롭다운 배경색 */
+  border: 1px solid #ddd; /* 드롭다운 테두리 */
+  z-index: 1000; /* 다른 요소 위에 표시되도록 */
+}
+
+.dropdown-menu.show {
+  display: block; /* 열릴 때 표시 */
+}
 </style>
