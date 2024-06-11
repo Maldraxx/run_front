@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import store from '../store';
 
-import HomePage from "../views/HomePage.vue";
-import QuizPage from "../views/QuizPage.vue";
 import CommunityPage from "../views/CommunityPage.vue";
-import RegisterProblemPage from "../views/RegisterProblemPage.vue";
-import SolutionPage from "../views/SolutionPage.vue";
+import HomePage from "../views/HomePage.vue";
 import LoginPage from "../views/LoginPage.vue";
-import RegisterPage from "../views/RegisterPage.vue";
 import MyPage from "../views/MyPage.vue";
+import QuizPage from "../views/QuizPage.vue";
+import RegisterPage from "../views/RegisterPage.vue";
+import RegisterProblemPage from "../views/RegisterProblemPage.vue";
+import SelectedPostPage from "../views/SelectedPostPage.vue";
+import SolutionPage from "../views/SolutionPage.vue";
 import UserWritePage from "../views/UserWritePage.vue";
-import SelectedPostPage from "../views/SelectedPostPage.vue"
 // import ListEx from "../views/ListEx.vue"
 
 const routes = [
@@ -28,7 +28,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_BASE_URL),
+  history: createWebHistory(),
   routes,
 });
 
