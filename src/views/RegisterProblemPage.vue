@@ -8,8 +8,21 @@
 
     <select v-model="selectedProblemType">
       <option value="">문제 종류 선택</option>
-      <option value="math">수학</option>
-      <option value="programming">프로그래밍</option>
+      <option value="Mathematics">수학</option>
+      <option value="Implementation">구현 </option>
+      <option value="Dynamic Programming">다이나믹 프로그래밍</option>
+      <option value="Data Structure">자료 구조</option>
+      <option value="Sorting">정렬</option>
+      <option value="Number Theory">정수론</option>
+      <option value="Tree">트리</option>
+      <option value="Simulation">시뮬레이션 </option>
+      <option value="Breadth First Search (BFS">너비 우선 탐색</option>
+      <option value="Backtracking">백트래킹</option>
+      <option value="Shortest Path">최단 경로</option>
+      <option value="Parsing">파싱</option>
+      <option value="Priority Queue">우선순위 큐</option>
+      <option value="Prime Number Determination">소수 판정</option>
+      <option value="Stack">스택</option>
     </select>
 
     <select v-model="selectedLevel">
