@@ -303,7 +303,19 @@ export default {
           console.log("API 응답 받음:", JSON.stringify(response_togetid.data, null, 2));
           this.previousProblems = response_togetid.data.questions || response_togetid.data; // 응답 데이터에서 이전 문제들 저장
           const lastProblem = this.previousProblems[this.previousProblems.length - 1];
-          const questionId=lastProblem? lastProblem.id:null;
+          const questionId=lastProblem? lastProblem.question_id:null;
+          if (this.previousProblems.length === 0) {
+            this.showMessage("이전 문제를 찾을 수 없습니다. 문제를 생성해주세요.");
+            return;
+          }
+          console.log("가장 최근 문제:", lastProblem);
+  
+          console.log("가장 최근 문제 ID:", questionId);
+
+          if (!questionId) {
+            this.showMessage("이전 문제를 찾을 수 없습니다1. 문제를 생성해주세요.");
+            return;
+          }
           //*/
 
 
@@ -347,15 +359,22 @@ export default {
         } catch (error) {
           console.error("에러 발생:", error);
           console.log("에러 응답 데이터:", error.response?.data);
-          this.showMessage(
-            `코드 제출 중 오류가 발생했습니다: ${
-              error.response?.data?.message || error.message
-            }`
-          );
-        }
+          if (error.response) {
+        console.log("Error response status:", error.response.status);
+        console.log("Error response headers:", JSON.stringify(error.response.headers, null, 2));
+        this.showMessage(
+          `코드 제출 중 오류가 발생했습니다: ${
+            error.response.data?.message || error.response.data || error.message
+          }`
+        );
       } else {
-        this.showMessage("문제와 코드를 모두 작성해 주세요.");
+        this.showMessage(`코드 제출 중 오류가 발생했습니다: ${error.message}`);
       }
+    }
+  } else {
+    this.showMessage("문제와 코드를 모두 작성해 주세요.");
+  }
+
     },
     retryProblem(problem){
       this.createdProblem = problem;
