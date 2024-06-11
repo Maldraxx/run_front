@@ -1,10 +1,5 @@
 # 0509test
 
-## 위치 수정 필요
-
-```
-cd ./테스트용/run_front_test_0.0.1
-```
 
 ## Project setup
 
