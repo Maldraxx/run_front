@@ -16,5 +16,5 @@ import materialKit from "./material-kit";
 const app = createApp(App);
 app.use(router);
 app.use(store); // store 사용
-app.mount("#app");
 app.use(materialKit);
+app.mount("#app");
